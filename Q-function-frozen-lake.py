@@ -42,7 +42,7 @@ with tf.Session() as sess:
         j = 0
         # the q net
         while j < 99:
-            j+=1
+            j += 1
             # choose an aciton by greedily, with chance of random actions , from the q tabe
             a, allQ = sess.run([predict, Qout], feed_dict={inputs1: np.identity(16)[s:s+1]})
             if np.random.rand(1) < e:
@@ -56,3 +56,14 @@ with tf.Session() as sess:
             targetQ = allQ
             targetQ[0,a[0]] = r + y*maxQ1
             # train our nn using target
+            _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(16)[s:s+1],nextQ:targetQ})
+            rAll += r
+            s = s1
+            if d == True:
+                #Reduce chance of random action as we train the model.
+                e = 1./((i/50) + 10)
+                break
+        jList.append(j)
+        rList.append(rAll)
+print("Percent of successful episodes: " + str(sum(rList)/num_episodes) + "%")
+
